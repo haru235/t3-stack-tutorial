@@ -37,7 +37,7 @@ const PostView = (props: PostWithUser) => {
           <span>{`@${author.username}`}</span>
           <span className="font-thin">{` · ${dayjs(post.createdAt).fromNow()}`}</span>
         </div>
-        <span>{post.content}</span>
+        <span className="text-2xl">{post.content}</span>
       </div>
     </div >
   );
@@ -46,7 +46,7 @@ const PostView = (props: PostWithUser) => {
 const Feed = () => {
   const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
 
-  if (postsLoading || true) return <LoadingPage />;
+  if (postsLoading) return <LoadingPage />;
   if (!data) return <div>Something went wrong</div>;
 
   return (
