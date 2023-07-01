@@ -13,7 +13,6 @@ import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 import type { posts } from "@prisma/client";
-import { contextProps } from "@trpc/react-query/shared";
 
 const addUserDataToPosts = async ( posts: posts[] ) =>
 {
