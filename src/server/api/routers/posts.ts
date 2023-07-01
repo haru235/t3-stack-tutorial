@@ -1,11 +1,19 @@
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
+
+import
+{
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
+
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
-import type { posts } from '@prisma/client';
+import type { posts } from "@prisma/client";
+import { contextProps } from "@trpc/react-query/shared";
 
 const addUserDataToPosts = async ( posts: posts[] ) =>
 {
@@ -41,6 +49,16 @@ const ratelimit = new Ratelimit( {
 } );
 
 export const postsRouter = createTRPCRouter( {
+
+  getById: publicProcedure.input( z.object( { id: z.string() } ) ).query( async ( { ctx, input } ) =>
+  {
+    const post = await ctx.prisma.posts.findUnique( { where: { id: input.id } } );
+
+    if ( !post ) throw new TRPCError( { code: "NOT_FOUND" } );
+
+    return ( await addUserDataToPosts( [ post ] ) )[ 0 ];
+  } ),
+
   getAll: publicProcedure.query( async ( { ctx } ) =>
   {
     const posts = await ctx.prisma.posts.findMany( {
